@@ -1778,7 +1778,7 @@ compeToggle = MainTab:Dropdown({
         if type(selected) == "table" and table.find(selected, "OFF") then
             trapEndings = {}
             compeMode   = false
-            pcall(function() compeToggle:Set({}) end)  -- unselect semua termasuk OFF
+            pcall(function() compeToggle:Refresh({}) end)  -- unselect semua termasuk OFF
             notify("❄️ COMPE MODE", "Nonaktif — semua trap endings dimatikan", 2)
             if updateConfigDisplay then updateConfigDisplay() end
             return
