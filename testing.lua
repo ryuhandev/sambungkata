@@ -1768,12 +1768,21 @@ autoToggle = MainTab:Toggle({
 
 compeToggle = MainTab:Dropdown({
     Title    = "Compe Mode — Pilih Trap Endings",
-    Desc     = "Pilih satu atau lebih ending jebakan. Kosong = nonaktif.",
+    Desc     = "Pilih satu atau lebih ending jebakan. Pilih 'OFF' untuk matikan semua.",
     Icon     = "lucide:flame",
-    Values   = ALL_TRAP_OPTIONS,
+    Values   = {"OFF", table.unpack(ALL_TRAP_OPTIONS)},  -- ✅ tambah OFF di paling atas
     Value    = {},
     Multi    = true,
     Callback = function(selected)
+        -- ✅ Jika OFF dipilih, langsung reset semua & unselect
+        if type(selected) == "table" and table.find(selected, "OFF") then
+            trapEndings = {}
+            compeMode   = false
+            pcall(function() compeToggle:Set({}) end)  -- unselect semua termasuk OFF
+            notify("❄️ COMPE MODE", "Nonaktif — semua trap endings dimatikan", 2)
+            if updateConfigDisplay then updateConfigDisplay() end
+            return
+        end
         if type(selected) == "table" and #selected > 0 then
             trapEndings = selected
             compeMode   = true
