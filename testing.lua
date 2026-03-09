@@ -693,7 +693,6 @@ local function typeChar(ch)
     currentTyped = currentTyped .. string.lower(ch)
     pcall(function() sendKey(ch) end)
     pcall(function() TypeSound:FireServer() end)
-    pcall(function() BillboardUpdate:FireServer(currentTyped) end)
 end
 
 -- Hapus 1 karakter
@@ -713,7 +712,6 @@ local function eraseChar()
         local tb = findTextBox()
         if tb then tb.Text = currentTyped end
     end)
-    pcall(function() BillboardUpdate:FireServer(currentTyped) end)
 end
 
 local function humanDelay()
@@ -814,7 +812,7 @@ local function revertToStartLetter()
     local excessCount = #currentTyped - #target
     if excessCount <= 0 then
         currentTyped = target
-        pcall(function() BillboardUpdate:FireServer(currentTyped) end)
+        
         pcall(function()
             local tb = findTextBox()
             if tb and tb.Text ~= currentTyped then
@@ -829,7 +827,6 @@ local function revertToStartLetter()
         task.wait(0.2)
     end
     currentTyped = target
-    pcall(function() BillboardUpdate:FireServer(currentTyped) end)
     pcall(function()
         local tb = findTextBox()
         if tb then tb.Text = currentTyped end
@@ -862,7 +859,6 @@ local function submitAndRetry(startLetter)
             local tb = findTextBox()
             if tb then tb.Text = startLetter end
         end)
-        pcall(function() BillboardUpdate:FireServer(currentTyped) end)
         task.wait(0.05)
         if currentTyped ~= startLetter then
             local excess = #currentTyped - #startLetter
@@ -874,7 +870,6 @@ local function submitAndRetry(startLetter)
             end
             if currentTyped ~= startLetter then
                 currentTyped = startLetter
-                pcall(function() BillboardUpdate:FireServer(currentTyped) end)
                 pcall(function()
                     local tb = findTextBox()
                     if tb then tb.Text = currentTyped end
@@ -1528,11 +1523,55 @@ local function onMatchUI(cmd, value)
         updateMainStatus()
         task.delay(0.1, refreshSelectDropdown)
         task.spawn(function()
-            for i = 1, 3 do
-                task.wait(0.5 + (i - 1) * 0.4)
-                tapScreenOnce()
+    task.wait(0.8)
+    -- Cek dulu apakah ada dialog/popup game yang visible sebelum tap
+        local gui = LocalPlayer:FindFirstChild("PlayerGui")
+        if not gui then return end
+        
+        -- Keyword dialog game (bukan WindUI)
+        local DIALOG_KEYWORDS = { "ok", "oke", "close", "kembali", "lanjut", "keluar", "main lagi", "rematch", "back" }
+        -- Keyword yang HARUS DIHINDARI (bagian WindUI)
+        local WINDUI_KEYWORDS = { "wind", "sambung", "main", "select", "player", "about", "auto", "config" }
+        
+        local function isWindUIElement(obj)
+            local p = obj
+            while p do
+                local name = string.lower(p.Name or "")
+                for _, kw in ipairs(WINDUI_KEYWORDS) do
+                    if name:find(kw) then return true end
+                end
+                p = p.Parent
             end
-        end)
+            return false
+        end
+        
+        local function findGameDialog(parent)
+            for _, child in ipairs(parent:GetChildren()) do
+                if (child:IsA("TextButton") or child:IsA("ImageButton")) and child.Visible then
+                    local txt = string.lower(child.Text or "")
+                    for _, kw in ipairs(DIALOG_KEYWORDS) do
+                        if txt:find(kw) and not isWindUIElement(child) then
+                            return child
+                        end
+                    end
+                end
+                local r = findGameDialog(child)
+                if r then return r end
+            end
+            return nil
+        end
+        
+        -- Coba maksimal 3x tapi HANYA jika dialog nyata ditemukan
+        for i = 1, 3 do
+            local btn = findGameDialog(gui)
+            if btn then
+                pcall(function() btn.MouseButton1Click:Fire() end)
+                print("[TAP] klik dialog game: " .. (btn.Text or btn.Name))
+                break  -- ✅ Stop setelah 1x klik berhasil, tidak perlu loop terus
+            end
+            task.wait(0.6)
+        end
+    end)
         
         -- ✅ FIX: Restart auto join setelah match selesai (jika aktif)
         if isAutoJoinActive() then
@@ -1550,7 +1589,6 @@ local function onMatchUI(cmd, value)
         if type(value) == "string" and value ~= "" then serverLetter = value end
         -- ✅ JANGAN RESET blacklistedWords di StartTurn! Persist antar giliran
         currentTyped = string.lower(serverLetter)
-        pcall(function() BillboardUpdate:FireServer(currentTyped) end)
         task.delay(0.3, refreshSelectDropdown)
         if autoEnabled then
             task.spawn(function()
@@ -1639,7 +1677,6 @@ PlayerHit.OnClientEvent:Connect(function(player)
         -- 3. Reset currentTyped ke serverLetter
         if serverLetter ~= "" then
             currentTyped = string.lower(serverLetter)
-            pcall(function() BillboardUpdate:FireServer(currentTyped) end)
             pcall(function()
                 local tb = findTextBox()
                 if tb then tb.Text = currentTyped end
@@ -1724,7 +1761,6 @@ autoToggle = MainTab:Toggle({
             end)
         else
             autoRunning = false
-            task.spawn(function() task.wait(0.1); fireBillboardEnd() end)
             notify("⚡ AUTO MODE", "Auto Dimatikan", 3)
         end
     end
