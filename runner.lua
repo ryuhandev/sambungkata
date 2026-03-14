@@ -17,8 +17,8 @@ if not player then return end
 
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Destroy old if exists
-local old = playerGui:FindFirstChild("RyuhanRimuru")
+-- Destroy old if exists (hanya yang bernama sama, jangan hancurkan GUI lain)
+local old = playerGui:FindFirstChild("RimuruHub")
 if old then
     old:Destroy()
 end
@@ -48,23 +48,23 @@ local running = true
 
 task.spawn(function()
     while running and gui.Parent do
-        
+
         -- Fade In
         local fadeIn = TweenService:Create(text, TweenInfo.new(0.8), {
             TextTransparency = 0
         })
         fadeIn:Play()
         fadeIn.Completed:Wait()
-        
+
         task.wait(0.4)
-        
+
         -- Fade Out
         local fadeOut = TweenService:Create(text, TweenInfo.new(0.8), {
             TextTransparency = 1
         })
         fadeOut:Play()
         fadeOut.Completed:Wait()
-        
+
         task.wait(0.2)
     end
 end)
