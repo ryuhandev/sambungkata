@@ -18,14 +18,14 @@ if not player then return end
 local playerGui = player:WaitForChild("PlayerGui")
 
 -- Destroy old if exists
-local old = playerGui:FindFirstChild("SazaraaaxUltra")
+local old = playerGui:FindFirstChild("RyuhanRimuru")
 if old then
     old:Destroy()
 end
 
 -- GUI
 local gui = Instance.new("ScreenGui")
-gui.Name = "SazaraaaxUltra"
+gui.Name = "RimuruHub"
 gui.ResetOnSpawn = false
 gui.Parent = playerGui
 
@@ -35,7 +35,7 @@ text.BackgroundTransparency = 1
 text.Size = UDim2.new(0, 300, 0, 40)
 text.AnchorPoint = Vector2.new(1,1)
 text.Position = UDim2.new(1, -20, 1, -20) -- kanan bawah
-text.Text = "sazaraaax x Danz script"
+text.Text = "by ryuhan"
 text.Font = Enum.Font.GothamBold
 text.TextSize = 18
 text.TextColor3 = Color3.fromRGB(255,255,255)
