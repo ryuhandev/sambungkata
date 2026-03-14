@@ -11,8 +11,7 @@ if CoreGui:FindFirstChild("InformationUpdatePopup") then
 end
 
 -- ================= CONFIG =================
-local WhatsAppLink = "https://whatsapp.com/channel/0029Vb7tSbFLikgCMYq0912t"
-local AccentColor = Color3.fromRGB(255, 255, 255)
+local WhatsAppLink = "https://whatsapp.com/channel/0029Vb7tSbFLikgCMYq0912t"                                                                           local AccentColor = Color3.fromRGB(255, 255, 255)
 local BgColor = Color3.fromRGB(15, 15, 15)
 
 -- 1️⃣ Root UI
